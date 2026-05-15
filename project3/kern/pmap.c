@@ -191,10 +191,6 @@ mem_init(void)
         memset(pages, 0, npages * sizeof(struct PageInfo));
 
 
-
-
-
-
 	//////////////////////////////////////////////////////////////////////
 	// Make 'envs' point to an array of size 'NENV' of 'struct Env'.
 	
@@ -228,10 +224,6 @@ mem_init(void)
 	//    - pages itself -- kernel RW, user NONE
 
 	boot_map_region(kern_pgdir, UPAGES, PTSIZE, PADDR(pages), PTE_U);
-	
-	
-
-
 
 	//////////////////////////////////////////////////////////////////////
 	// Map the 'envs' array read-only by the user at linear address UENVS
@@ -241,7 +233,6 @@ mem_init(void)
 	//    - envs itself -- kernel RW, user NONE
 	
 	boot_map_region(kern_pgdir, UENVS, PTSIZE, PADDR(envs), PTE_U | PTE_P);
-	
 	
 	
 	//////////////////////////////////////////////////////////////////////
@@ -679,14 +670,12 @@ static uintptr_t user_mem_check_addr;
 int
 user_mem_check(struct Env *env, const void *va, size_t len, int perm)
 {
-	// LAB 3: Your code here.
 	uint32_t raw_range = ROUNDUP(va + len, PGSIZE) - ROUNDDOWN(va, PGSIZE);
 	uint32_t num_of_pages = raw_range/PGSIZE;
 	
 	int create = 0;
 	for (int i = 0; i < num_of_pages; i++)
 	{
-		 //uint32_t current_va = va + (i*PGSIZE);
 		 void *current_va = (void *)(va + i * PGSIZE);
 		 if ((uintptr_t)current_va >= ULIM) //check if below the correct address
 		 {
