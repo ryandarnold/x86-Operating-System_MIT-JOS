@@ -115,16 +115,12 @@ void
 env_init(void)
 {
 	// Set up envs array
-	// LAB 3: Your code here.
-	//RYAN: env_free_list is the head of the linked list!!
+	//NOTE: env_free_list is the head of the linked list!!
 	//NOTE: need to add to linked list to tail of LL, not head like before!
-	
-	//NOTE: :this function looks good?? 
 	
 	bool firstTime = true;
 	for (int i = 0; i < NENV; i++)
 	{
-		//cprintf("RYAN: NENV #: %u\n", i);
 		envs[i].env_status = ENV_FREE;
 		envs[i].env_id = 0;
 		envs[i].env_link = NULL;
@@ -213,12 +209,10 @@ env_setup_vm(struct Env *e)
 	//	pp_ref for env_free to work correctly.
 	//    - The functions in kern/pmap.h are handy.
 	
-	// LAB 3: Your code here.
-	
-	//RYAN: variable 'p' is the pointer to the page directory
-	//RYAN: page_alloc() allocates a PHYSICAL page 
+	//NOTE: variable 'p' is the pointer to the page directory
+	//NOTE: page_alloc() allocates a PHYSICAL page 
 		
-	p->pp_ref++; //apparently env_pgdir PDE_T is the exception where we MUST increment the pp_ref value? idk why it just say so bro
+	p->pp_ref++; //apparently env_pgdir PDE_T is the exception where we MUST increment the pp_ref value
 	e->env_pgdir = page2kva(p); //need to point to the new page directory that was just made
 	memcpy(e->env_pgdir, kern_pgdir, PGSIZE);
 	
@@ -301,16 +295,10 @@ env_alloc(struct Env **newenv_store, envid_t parent_id)
 static void
 region_alloc(struct Env *e, void *va, size_t len)
 {
-	// LAB 3: Your code here.
-	// (But only if you need it for load_icode.)
-	//
 	// Hint: It is easier to use region_alloc if the caller can pass
 	//   'va' and 'len' values that are not page-aligned.
 	//   You should round va down, and round (va + len) up.
 	//   (Watch out for corner-cases!)
-	
-	//boot_map_region(e->env_pgdir, (uintptr_t) va, len, PADDR(e->env_pgdir), PTE_P | PTE_U | PTE_W); isn't even defined in this file!!
-	//RYAN: I think we're doing basically the same thing as boot_map_region but for areas below UTOP? 
 	
 	if (len ==0)
 	{
@@ -320,23 +308,22 @@ region_alloc(struct Env *e, void *va, size_t len)
 	uint32_t rounded_up_address = ROUNDUP((uintptr_t) va  + len, PGSIZE);
 	uint32_t rounded_down_address = ROUNDDOWN((uintptr_t) va, PGSIZE);
 	
-	uint32_t totalPages = (rounded_up_address - rounded_down_address) / PGSIZE; //the total number of pages to allocate i think
+	uint32_t totalPages = (rounded_up_address - rounded_down_address) / PGSIZE; //the total number of pages to allocate
       	for(int i = 0; i < totalPages; i++)
 	{
-		struct PageInfo* newPage = page_alloc(0); //allocate one physical page without initializing the memory contents for some reason
+		struct PageInfo* newPage = page_alloc(0); //allocate one physical page without initializing the memory contents
 		if (newPage == NULL)
 		{
 			panic("region_alloc tried to allocate space/pages, but there wasn't enough free!");
 		}
-		//NOTE: page_insert() "Maps the physical page 'pp' at virtual address 'va'" which is what i seem to need based off the comments :L
 		uint32_t pass = page_insert(e->env_pgdir, newPage, (void*) (rounded_down_address + i * PGSIZE), PTE_P | PTE_W | PTE_U);
 		if (pass == 0)
 		{
-			//we gucci, no errors
+			//no errors
 		}
 		else if (pass < 0)
 		{
-			panic("page_insert in region_alloc() failed! you should be concerned bro");
+			panic("page_insert in region_alloc() failed! you should be concerned");
 		}
 	}
 	
@@ -395,20 +382,18 @@ load_icode(struct Env *e, uint8_t *binary)
 	//  to make sure that the environment starts executing there.
 	//  What?  (See env_run() and env_pop_tf() below.)
 
-	// LAB 3: Your code here.
-
 	if (binary == NULL)
 	{
 		panic("incoming binary location NULL in load_icode() function");
 	}
-	lcr3(PADDR(e->env_pgdir)); //STEP 1: switch to the correct page table memory place thing before anything else!
+	lcr3(PADDR(e->env_pgdir)); //STEP 1: switch to the correct page table memory place before anything else!
 
 
 	struct Proghdr *mainProgramHeader, *endOfProgramHeader;
 	struct Elf *ELFHDR = (struct Elf *) binary;
 	
         if (ELFHDR->e_magic != ELF_MAGIC)
-                panic("we done messed up homies");
+                panic("ELF_MAGIC error!");
 	
 	// load each program segment (ignores ph flags)
 	mainProgramHeader = (struct Proghdr *) ((uint8_t *) ELFHDR + ELFHDR->e_phoff);
@@ -421,7 +406,6 @@ load_icode(struct Env *e, uint8_t *binary)
          	
 	  	if (mainProgramHeader->p_type == ELF_PROG_LOAD)
 		{
-			//do something??I
 			//region_alloc() apparently only allocates space for new stuff, but doesn't copy data from the ELF file into the new user space
 			//p_memsz tells you the size of the segment in memory
 			region_alloc(e, (void*) mainProgramHeader->p_va, mainProgramHeader->p_memsz); //memsz tells you how much to reserve
@@ -438,7 +422,6 @@ load_icode(struct Env *e, uint8_t *binary)
 	}
 	// Now map one page for the program's initial stack
 	// at virtual address USTACKTOP - PGSIZE.
-	// LAB 3: Your code here.
 	struct PageInfo* newPage = page_alloc(ALLOC_ZERO);
 	if (newPage == NULL)
 	{
@@ -467,7 +450,6 @@ load_icode(struct Env *e, uint8_t *binary)
 void
 env_create(uint8_t *binary, enum EnvType type)
 {
-	// LAB 3: Your code here
 	
 	struct Env *newEnv = NULL;
 	envid_t parent_ID = 0;
@@ -602,10 +584,7 @@ env_run(struct Env *e)
 	//	and make sure you have set the relevant parts of
 	//	e->env_tf to sensible values.
 
-	// LAB 3: Your code here.
-
-	//panic("env_run not yet implemented");
-	//RYAN: NOTE: i think the enviornment 'e' is created before even calling 'env_run'! so don't need to make it myself
+	//NOTE: i think the enviornment 'e' is created before even calling 'env_run'! so don't need to make it myself
 	
 	if (curenv != NULL)
 	{
