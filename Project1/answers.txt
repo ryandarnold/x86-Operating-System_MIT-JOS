@@ -1,0 +1,75 @@
+CSCI-352 Project 1
+Submitted by:  Ryan Arnold, Gabby Donohue
+
+Question 1: "Try to guess what its ROM BIOS is doing by looking at the first few instructions"
+
+Answer for Question 1: 
+The instructions look like they're in BIOS mode trying to prepare the system to load in a bootloader from BIOS (I think). The instructions set up the stack segment and extended stack pointer register, which are used to run a program. Also, doing "make qemu-gdb" tells QEMU to stop just before the processor executes the first instruction, which tells me the first instruction is probably BIOS firmware trying to immediately load in the bootloader. 
+
+
+
+Question 2:
+Part A) "At what point does the processor first start executing 32-bit code? What exactly causes the switch from 16- to 32-bit mode?"
+Part B) "What is the last instruction of the boot loader executed, and what is the first instruction of the kernel it just loaded?"
+Part C) "Where is the first instruction of the kernel?"
+Part D) "How does the boot loader decide how many sectors it must read in order to fetch the entire kernel from disk? Where does it find this information?"
+
+Answers for Question 2: 
+A) The processor first starts executing 32-bit code after the "ljmp $PROT_MODE_CSEG, $protcseg" code into the .code32 section. The "long jump" instruction causes it to officially switch. To first get into protected mode, you have to set bit 0 of the CR0 register before performing the long jump instruction.
+B) The last instruction the boot loader executes is "((void (*)(void)) (ELFHDR->e_entry))();" because the e_entry parameter tells the bootmain() where to find the kernel code. The first instruction of the kernel it just loaded is is "entry.S" file, which is "_start = RELOC(entry)" and specifies the ELF starting point for loading in the kernel code. 
+C) The first instruction of the kernel is located in entry.S
+D) The number of sectors read depends on number of program headers in the ELFHDR, and the size each ph->p_memsz bytes to read in each program header. It finds this information from each program header located in the Executable and Linkable Format Header (ELFHDR). 
+
+
+
+Question 3: "Trace through the first few instructions of the boot loader again and identify the first instruction that would break or otherwise do the wrong thing if you were to get the boot loader's link address wrong. Then change the link address in boot/Makefrag to something wrong. Describe what you changed and what the effect was; was the effect what you expected, or something different?"
+
+Answers for Question 3:
+1) (*I might be wrong about this rip*) I think the first address that would break would be in boot.S under the "ljmp $PROT_MODE_CSEG, $protcseg" instruction, because the address of "protcseg" symbol differs depending on the link address, which means the jump would jump to a wrong address. I changed the address from 0x7c00 to 0x8000, which, when I executed "ljmp $PROT_MODE_CSEG, $protcseg", kept looping and executing this same ljmp instruction instead of going to the actual location like it should have before changing the link address. I actually expected it to jump to the new memory address (but execute wrong code), but instead it kept looping. 
+
+
+
+Question 4: "Examine the 8 words of memory at 0x00100000 at the point the BIOS enters the boot loader, and then again at the point the boot loader enters the kernel. Why are they different? What is there at the second breakpoint? (You do not really need to use QEMU to answer this question. Just think.)"
+
+Answer for question 4: 
+1) Right when the BIOS enters the bootloaders at address 0x7c00, the  memory at 0x100000 is all zeros and seems to be cleared. Right when we enter the Kernel code, the 8 memory addresses at 0x100000 are filled with kernel instructions. This makes sense, because the bootloader loaded these kernel instructions at location 0x100000, but these locations were empty before they were loaded. 
+
+
+Question 5: "What is the first instruction after the new mapping is established that would fail to work properly if the mapping weren't in place? Comment out the movl %eax, %cr0 in kern/entry.S, trace into it, and see if you were right."
+
+Answer for question 5: 
+1) The first instruction that would fail would be the "mov $relocated, %eax" and the "jmp *%eax" instructions, because once virtual memory/paging is enabled, then the CPU interprets the assembly labels as virtual memory addresses. After attempting commenting out the "mov $relocated, %eax" instruction, QEMU crashed right after the "jmp *%eax" instruction. 
+
+
+Question 6:
+A) "Explain the interface between printf.c and console.c. Specifically, what function does console.c export? How is this function used by printf.c?"
+B) "In the following code, what is going to be printed after 'y='? (Note: the answer is not a specific value.) Why does this happen?
+cprintf("x=%d y=%d", 3);"
+C) "Let's say that GCC changed its calling convention so that it pushed arguments on the stack in declaration order, so that the last argument is pushed last. How would you have to change cprintf() or its interface so that it would still be possible to pass it a variable number of arguments?"
+
+Answers for Question 6: 
+1) console.c seems to be directly interacting, via assembly code, with the hardware to output characters to the COM serial ports. console.c exports the "cputchar()" function to the "putch()" function in the print.c file. The print.c file uses this function to output a single character at a time to the console. 
+2) the next argument in the variable-arguments variable 'ap' will be printed as a base 10  signed integer value. This happens because getint(&ap, lflag) returns the next value in the variable arguments list
+3) I think you would have to push all the values of the stack into another stack, then pop one argument at a time to get them back in the left-to-right order
+
+
+Question 7: "Determine where the kernel initializes its stack, and exactly where in memory its stack is located. How does the kernel reserve space for its stack? And at which end of this reserved area is the stack pointer initialized to point to?"
+
+Answer for Question 7: 
+1) The kernel initializes its stack in entry.S, under the .data section starting at the bootstack label, and ending with the bootstacktop label. 0xf0110000 is the location where the top of the stack is located. The kernel reserves space by setting the section as a .data label. The "top" of the stack is at the lowest memory address, because the stack seems to point downward
+
+
+Question 8: "How many 32-bit words does each recursive nesting level of test_backtrace push on the stack, and what are those words?"
+
+Answer for Question 8: 
+1) Each recursive backtrace pushes seven 32-bit words. It pushes: 
+A) ebp (the current stack frame/base pointer)
+B) ebx (which this function must push before using it) 
+C) ebx again (which contains the current value of argument x)
+D) 0xf01018c0 (which is the pointer to the string "entering test_backtrace" argument for the cprintf() function)
+E) The return address after returning from cprintf()
+F) eax (which contains x-1 variable)
+G) ***NOTE*** I'm not sure if we should include 32 bit words pushed onto the stack after x > 0 is NOT true, since we are returning and printing
+"leaving test_backtrace"
+
+
