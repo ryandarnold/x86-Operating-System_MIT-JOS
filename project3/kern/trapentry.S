@@ -43,15 +43,11 @@
 
 .text
 
-/*
- * Lab 3: Your code here for generating entry points for the different traps.
- */
 
 //NOTE: 'name' is just a symbol!! it doesn't matter what you name it as long as it makes sense!
 
 	//divide error does NOT push an error code
 	TRAPHANDLER_NOEC(label__t_divide_NOEC, T_DIVIDE) //0 -divide error does NOT push an error code
-	//label__t_divide_NOEC
 	TRAPHANDLER_NOEC(label__t_debug_NOEC, T_DEBUG) //1 - no error code
 
 	TRAPHANDLER_NOEC(label__t_nmi_NOEC, T_NMI) //2 - https://wiki.osdev.org/Exceptions
@@ -83,13 +79,9 @@
 	
 	
 	
-	
-/*
- * Lab 3: Your code here for _alltraps
- */
 
 _alltraps:
-        #step 1: push struct PushRegs as first step to emulating the TrapFrame like the lab 3 doc says
+        #step 1: push struct PushRegs as first step to emulating the TrapFrame
 	
 	//NOTE: the trap number is pushed first, then %ds, then %es in struct TrapFrame definition
 	//NOTE: GD_KD is only 8 bits
@@ -97,7 +89,7 @@ _alltraps:
 	push %ds 
 	push %es
 	pushal          //apparently 'pushal' pushes all registers from the PushRegs struct
-	movw $GD_KD, %bx //can't load immediate into register unless its the same size??
+	movw $GD_KD, %bx //can't load immediate into register unless its the same size?
 	movw %bx, %ds
 	movw %bx, %es
 	pushl %esp
