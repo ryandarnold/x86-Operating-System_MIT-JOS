@@ -20,12 +20,12 @@ static struct Trapframe *last_tf;
 /* Interrupt descriptor table.  (Must be built at run time because
  * shifted function addresses can't be represented in relocation records.)
  */
-struct Gatedesc idt[256] = { { 0 } }; //RYAN: array of ALL interrupt descriptors, which must be set by SETGATE
+struct Gatedesc idt[256] = { { 0 } }; //NOTE: array of ALL interrupt descriptors, which must be set by SETGATE
 struct Pseudodesc idt_pd = {
 	sizeof(idt) - 1, (uint32_t) idt
 };
 
-void NAME(); //RYAN: not sure if this is correct
+void NAME(); //NOTE: not sure if this is correct
 
 
 
@@ -69,11 +69,7 @@ void
 trap_init(void)
 {
 	extern struct Segdesc gdt[];
-	
 
-	// LAB 3: Your code here.
-
-	//cprintf("\n!!!!RYAN: TRAP_INIT() STILL ISN'T GUCCI WITH THE TRUE/FALSE FOR ISTRAP DEFINITION!!!!\n\n");
 	SETGATE(idt[T_DIVIDE], true, GD_KT,label__t_divide_NOEC, 0);
 	SETGATE(idt[T_DEBUG], true, GD_KT, label__t_debug_NOEC, 0);
 	SETGATE(idt[T_NMI], false, GD_KT, label__t_nmi_NOEC, 0); //assuming this is false because osdev says its an interrupt
@@ -95,43 +91,6 @@ trap_init(void)
 
 	SETGATE(idt[T_SYSCALL], true, GD_KT, label__t_syscall_NOEC, 3);
 
-
-
-
-	/*bool istrap = true;
-	bool isNOTtrap = false;
-	//NOTE: I think SETGATE tries to setup the descriptor tables for the traps/exceptions
-	//NOTE: idt[] has been initialized to all zeros so i think i can just index into any of them and set them up here!
-	
-	//Need to tell the CPU what to do once a user creates an exception:
-	//-GD_KT for kernel text/code data to execute because you need to switch to kernel mode once exception occurs
-	//-offset is the offset within the global descriptor table, which apparently is defined by the symbol made in TRAPHANDLER
-	SETGATE(idt[T_DIVIDE], , GD_KT, label__t_divide_NOEC, 0); //0
-	SETGATE(idt[T_DEBUG], , GD_KT, label__t_debug_NOEC, 0); //1
-	SETGATE(idt[T_NMI], , GD_KT, label__t_nmi_NOEC, 0); //2
-	
-	SETGATE(idt[T_BRKPT], , GD_KT, label__t_brkpt_NOEC, 3); //3 -page 3294 of Intel® 64 and IA-32 Architectures Software Developer’s Manual 
-	
-	SETGATE(idt[T_OFLOW], , GD_KT, label__t_oflow_NOEC, 0); //4
-	SETGATE(idt[T_BOUND], , GD_KT, label__t_bound_NOEC, 0); //5
-	SETGATE(idt[T_ILLOP], , GD_KT, label__t_illop_NOEC, 0); //6
-	SETGATE(idt[T_DEVICE], , GD_KT, label__t_device_NOEC, 0); //7
-	SETGATE(idt[T_DBLFLT], , GD_KT, label__t_dblflt, 0); //8
-	//9 reserved
-	SETGATE(idt[T_TSS], , GD_KT, label__t_tss, 0); //10
-	SETGATE(idt[T_SEGNP], , GD_KT, label__t_segnp, 0); //11
-	SETGATE(idt[T_STACK], , GD_KT, label__t_stack, 0); //12
-	SETGATE(idt[T_GPFLT], , GD_KT, label__t_gpflt, 0); //13
-	SETGATE(idt[T_PGFLT], , GD_KT, label__t_pgflt, 0); //14
-	//15 reserved
-	SETGATE(idt[T_FPERR], , GD_KT, label__t_fperr_NOEC, 0); //16
-	SETGATE(idt[T_ALIGN], , GD_KT, label__t_align, 0); //17
-	SETGATE(idt[T_MCHK], , GD_KT, label__t_mchk_NOEC, 0); //18
-	SETGATE(idt[T_SIMDERR], , GD_KT, label__t_simderr_NOEC, 0); //19
-	
-	SETGATE(idt[T_SYSCALL], , GD_KT, label__t_syscall_NOEC, 3); //48 -> user must be able to do a SYSCALL exception!!!!
-	//SETGATE(idt[T_DEFAULT], , GD_KT, label__t_default_NOEC, 0); //500 -> this should NEVER be called because idt[] is size 256 max!
-	*/
 	// Per-CPU setup 
 	trap_init_percpu();
 }
@@ -209,7 +168,6 @@ static void
 trap_dispatch(struct Trapframe *tf)
 {
 	// Handle processor exceptions.
-	// LAB 3: Your code here.
 	
 	if (tf->tf_trapno == 14)
 	{
@@ -236,8 +194,6 @@ trap_dispatch(struct Trapframe *tf)
 		//now to return the value 'val' to %eax
 		//tf->tf_regs.reg_eax;
 		
-		//lab 3 doc says to for the return value to be passed back to the user process in %eax and not the current input *tf 
-		//because I THINK THINK THINK that the input parameter 'tf' is the KERNEL trapframe, which is different than user trapframe
 		curenv->env_tf.tf_regs.reg_eax = val;
 		return;
 	}
