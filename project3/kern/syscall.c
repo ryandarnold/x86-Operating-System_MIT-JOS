@@ -19,15 +19,9 @@ sys_cputs(const char *s, size_t len)
 {
 	// Check that the user has permission to read memory [s, s+len).
 	// Destroy the environment if not.
-
-	// LAB 3: Your code here.
-	//int val = user_mem_check(struct Env *env, const void *va, len, int perm)
 	
 	//couldn't call this function until wrote user_mem_check() function
 	user_mem_assert(curenv, (void *)s, len, PTE_U); //PTE_U for user read 
-	
-
-
 
 	// Print the string supplied by the user.
 	cprintf("%.*s", len, s);
@@ -75,11 +69,8 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
 {
 	// Call the function corresponding to the 'syscallno' parameter.
 	// Return any appropriate return value.
-	// LAB 3: Your code here.
-
-	//panic("syscall not implemented");
 	
-	//RYAN: a1 - a5 are the first five arguments to this function call
+	//NOTE: a1 - a5 are the first five arguments to this function call
 
 	switch (syscallno) 
 	{
@@ -97,7 +88,7 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
 		case SYS_env_destroy:
 		      return sys_env_destroy(a1);
 		case NSYSCALLS:
-		      cprintf("did NSYSCALLS but idk what that is supposed to do ");
+		      cprintf("NSYSCALLS was called");
 		      return -1;
 	default:
 		return -E_INVAL;
