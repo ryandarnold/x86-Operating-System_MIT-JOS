@@ -12,11 +12,10 @@ void
 libmain(int argc, char **argv)
 {
 	// set thisenv to point at our Env structure in envs[].
-	// LAB 3: Your code here.
 	thisenv = 0;
-	envid_t current_env = sys_getenvid(); //use sys_getenvid() from the lab 3 page. Kinda makes sense because we are a user!
+	envid_t current_env = sys_getenvid(); //use sys_getenvid(). Kinda makes sense because we are a user!
 
-	thisenv = &envs[ENVX(current_env)]; //not sure why ENVX() is needed for the index but hey the lab 3 doc said to look at inc/env.h so 
+	thisenv = &envs[ENVX(current_env)];
 
 	// save the name of the program so that panic() can use it
 	if (argc > 0)
