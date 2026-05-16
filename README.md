@@ -29,3 +29,10 @@ Implemented parts of the JOS operating system including:
 
 ### Exception & Trap Foundations
 - Trap handling core
+
+## Technologies Used
+- C
+- x86 assembly
+- GDB
+- Vim
+- Linux CLI
