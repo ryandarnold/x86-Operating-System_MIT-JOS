@@ -144,10 +144,7 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
 
 		// Make sure this memory is valid.
 		// Return -1 if it is not.  Hint: Call user_mem_check.
-		// LAB 3: Your code here.
 		
-
-		//RYAN: all the instructions said to do was to check if the 'usd' memory section was value, nothing else
 		int val = user_mem_check(curenv, (void*) usd, sizeof(struct UserStabData), PTE_U);
 		if (val < 0)
 		{
@@ -161,15 +158,9 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
 		stabstr_end = usd->stabstr_end;
 
 		// Make sure the STABS and string table memory is valid.
-		// LAB 3: Your code here.
 		
-		//RYAN: apparently stabs_end is just the memory location where the symbol table (stab) ends
-		//RYAN: and also stabstr_end is where stabstr ends, but i'm not sure what stabstr is anyway
-		
-		//int stab_val = user_mem_check(curenv, (void *) stabs, sizeof(stabs), PTE_U);
-		//int stab_end_val = user_mem_check(curenv, (void *) stab_end, sizeof(stab_end), PTE_U);
-		//int stabstr_val = user_mem_check(curenv, (void *) stabstr, sizeof(stabstr), PTE_U);
-		//int stabstr_end = user_mem_check(curenv, (void *) stabstr_end, sizeof(stabstr_end), PTE_U);	
+		//NOTE: apparently stabs_end is just the memory location where the symbol table (stab) ends
+		//NOTE: and also stabstr_end is where stabstr ends
 		
 		int stab_val = user_mem_check(curenv, (void *) stabs, stabs - stab_end, PTE_U);
 		int stabstr_val = user_mem_check(curenv, (void *) stabstr, stabstr - stabstr_end, PTE_U);
@@ -232,11 +223,8 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
 	//	Look at the STABS documentation and <inc/stab.h> to find
 	//	which one.
 	// Your code here.
-	//Lab 3 code
 
-
-	//RYAN: it said 'search within [lline, rline] so that tells me to use the binary search functino they included
-	//NOTE: i forgot that lline and rline are just indices, not the actual values
+	//NOTE: it said 'search within [lline, rline] so that tells me to use the binary search function they included
 	stab_binsearch(stabs, &lline, &rline, N_SLINE, addr);
 
 	
