@@ -1,5 +1,9 @@
 In kern/pmap.c, I: 
-modified the mem_init() function and wrote user_mem_check()
+modified the mem_init() function and wrote user_mem_check():
+
+➜ mem_init()
+
+➜ user_mem_check()
 
 In kern/env.c, I wrote these functions: 
 env_init(), env_setup_vm(), region_alloc(), load_icode(), env_create(), env_run()
