@@ -39,6 +39,7 @@ This function is supposed to allocate a new user environment and load the ELF bi
 
 This function switches environments from the environment currently being run to the new environment that the scheduler wants to run. To do this, I check that the current environment isn’t NULL, and if it isn’t, then I set the current environment’s status as runnable, meaning that it's ready to be executed again, but currently is not. Then I change the current environment to be the one the schedule input, set this new environment’s status as running, increase the counter of the number of times this environment has been run, switch the page directory to the new environment’s and load in the old registers. 
 
+---
 
 I modified: kern/trapentry.S
 
@@ -47,7 +48,7 @@ I modified: kern/trapentry.S
 This assembly file is meant to generate entry points for the different types of traps/exceptions that may be caused. To do this, I called the TRAPHANDLER_NOEC() assembly function on trap numbers 0-19, 48, and 500, while skipping 9 and 15 because they are reserved. Trap 500 is just a default trap handler for debugging and isn’t actually used. I also implemented _alltraps, which pushes values onto the stack to mimic the TrapFrame struct in C.
 
 In kern/trap.c, I wrote:
-trap_init(), trap_dispatch()
+trap_init(), trap_dispatch(), page_fault_handler()
 
 ➜ trap_init()
 
@@ -56,6 +57,12 @@ This function initializes all the interrupt descriptor tables. To do this, I cal
 ➜ trap_dispatch()
 
 Given a trapframe, this function calls the different functions that are to execute, depending on what trapframe number the trap was. If the incoming trap number, specified by the trapframe’s tf_trapno struct variable, was 14 (for a page fault exception), then I call the page_fault_handler() function. If the trap number was 3 (for breakpoint exception), then I call the monitor() function. If the trap number was 48 (for syscall exception), then I call the kernel’s syscall() function with the input trapframe’s eax, edx, ecx, ebx, edi, and esi register values. Finally, I changed the current environment’s trapframe’s eax register value to the one input in this function.  
+
+➜ page_fault_handler()
+
+This function handles page faults. All I do is check if the trapframe’s tf_cs variable is equal to 3, meaning the incoming page fault happened in user mode. If this happens, I issue a panic() function call because page faults should only happen in user mode.
+
+---
 
 In kern/syscall.c, I wrote: 
 sys_cputs(), syscall(), sys_cputs()
@@ -72,6 +79,8 @@ This very important function takes in parameters that the user gave it, includin
 
 This function prints a string to the system console, and all I do is call user_mem_check() to make sure the user has permission to read the given memory block. 
 
+---
+
 in kern/kdebug.c, I modified:
 debuginfo_eip()
 
@@ -79,6 +88,7 @@ debuginfo_eip()
 
 This function finds relevant debugging information to return to the caller function. The parts I did were to make sure the parts of the memory were valid by calling user_mem_check() and making sure that an error didn’t occur; also I called user_mem_check() to make sure the symbol table (STAB) and symbol table string regions were relevant. Finally, I called the STAB binary search function to find the correct ‘type’ and address, and if I found it, then I set the eip_line value to the stab value’s description value at location right_line. 
 
+---
 
 in lib/libmain.c, I modified:
 libmain()
