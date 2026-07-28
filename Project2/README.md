@@ -6,7 +6,7 @@ This function takes in ‘n’ bytes of memory to allocate, and returns the loca
 
 ➜ mem_init()
 
-This function initializes all the memory. I initialized the struct PageInfo ‘pages’ variable to allocate enough space using the above boot_alloc(), and then initialized all memory locations to zero using the memset() function.
+This function initializes all the memory. I initialized the struct PageInfo ‘pages’ variable to allocate enough space using the above boot_alloc(), and then initialized all memory locations to zero using the memset() function. The 'pages' variable just allocates enough space to hold metadata (i.e. all the PageInfo structs) about the actual physical pages 
 
 ➜ page_init()
 
