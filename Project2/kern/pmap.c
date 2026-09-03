@@ -471,7 +471,9 @@ pgdir_walk(pde_t *pgdir, const void *va, int create)
 		physaddr_t phys_addr_of_newPage_struct = page2pa(newPage) | PTE_P | PTE_W | PTE_U; //was getting asserting error so added PTE_U
 		pgdir[page_directory_index] = (pde_t) phys_addr_of_newPage_struct; //pgdir[] must store a physical address WITH permission bits
 		
-		
+		/*pgdir[PDX(va)] is physical address, so need to convert it to virtual because only the pages use physical addresses, but the return type
+		* of this 
+		*\
 		return &(((pte_t *) KADDR(pgdir[PDX(va)] & ~0xFFF))[PTX(va)]); //ignore the last 0xFFF(12) permission bits
 		
 	}
