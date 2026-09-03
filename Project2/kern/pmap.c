@@ -342,11 +342,11 @@ page_init(void)
 			pages[i].pp_ref = 1;
 			pages[i].pp_link = NULL;
 		}
-		else if (current_physical_address < PADDR(boot_alloc(0)))
-                {
-                        pages[i].pp_ref = 1;
-                        pages[i].pp_link = NULL;
-                }
+		else if (current_physical_address < PADDR(boot_alloc(0))) //you only go up to PADDR(boot_alloc(0)) because you've already allocated all the 'pages' space before calling this function in mem_init() function
+		{
+				pages[i].pp_ref = 1;
+				pages[i].pp_link = NULL;
+		}
 		else
 		{
 				pages[i].pp_ref = 0;
