@@ -2,7 +2,7 @@ I wrote these functions in the kern/pmap.c file:
 
 ➜ boot_alloc()
 
-This function takes in ‘n’ bytes of memory to allocate, and returns the location of the next free page. To do this, you simply keep track of the total number of pages available (which is initially determined by a non-volatile CMOS RAM chip), and then move a pointer once you allocate enough pages to hold ‘n’ number of bytes
+This function takes in ‘n’ bytes of memory to allocate, and returns the location of the next free page. To do this, you simply keep track of the total number of pages available (which is initially determined by a non-volatile CMOS RAM chip), and then move a pointer once you allocate enough pages to hold ‘n’ number of bytes. NOTE: You return the pointer that is already at the top of the stack, and THEN allocate more space, which makes sense because you dont know how much space you'll need
 
 ➜ mem_init()
 
