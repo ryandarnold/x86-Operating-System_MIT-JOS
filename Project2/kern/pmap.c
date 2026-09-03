@@ -512,8 +512,8 @@ boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm
 	{
 		void *current_virtual_address = (void *)(va + current_page * PGSIZE);
 		uint32_t current_physical_address = pa + current_page * PGSIZE; 
-		pte_t *pte_ptr = pgdir_walk(pgdir, current_virtual_address, create);
-		*pte_ptr = current_physical_address | perm | PTE_P;
+		pte_t *pte_ptr = pgdir_walk(pgdir, current_virtual_address, create); //creates a new space in the page directory for a new page table entry at 'va' address
+		*pte_ptr = current_physical_address | perm | PTE_P; //populates the new PTE with an input physical address and its permission bits
 	}
 }
 
