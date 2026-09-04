@@ -309,7 +309,7 @@ region_alloc(struct Env *e, void *va, size_t len)
 	uint32_t rounded_down_address = ROUNDDOWN((uintptr_t) va, PGSIZE);
 	
 	uint32_t totalPages = (rounded_up_address - rounded_down_address) / PGSIZE; //the total number of pages to allocate
-      	for(int i = 0; i < totalPages; i++)
+    for(int i = 0; i < totalPages; i++)
 	{
 		struct PageInfo* newPage = page_alloc(0); //allocate one physical page without initializing the memory contents
 		if (newPage == NULL)
@@ -399,7 +399,7 @@ load_icode(struct Env *e, uint8_t *binary)
 	mainProgramHeader = (struct Proghdr *) ((uint8_t *) ELFHDR + ELFHDR->e_phoff);
 	
         endOfProgramHeader = mainProgramHeader + ELFHDR->e_phnum;
-        for (; mainProgramHeader < endOfProgramHeader; mainProgramHeader++)
+    for (; mainProgramHeader < endOfProgramHeader; mainProgramHeader++)
 	{
                 // p_pa is the load address of this segment (as well
                 // as the physical address)
