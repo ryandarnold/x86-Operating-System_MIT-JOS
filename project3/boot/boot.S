@@ -48,7 +48,7 @@ seta20.2:
   lgdt    gdtdesc                 #you need to load the GDT at address 'gdtdesc'
   movl    %cr0, %eax              
   orl     $CR0_PE_ON, %eax
-  movl    %eax, %cr0              #change Control Register 0 to make the CR0_PE_ON bit on, which puts the CPU into protected mode
+  movl    %eax, %cr0              #RYAN: change Control Register 0 to make the CR0_PE_ON bit on, which puts the CPU into protected mode
   
   # Jump to next instruction, but in 32-bit code segment.
   # Switches processor into 32-bit mode.
