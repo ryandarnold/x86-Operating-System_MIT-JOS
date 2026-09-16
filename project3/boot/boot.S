@@ -45,7 +45,7 @@ seta20.2:
   # and segment translation that makes virtual addresses 
   # identical to their physical addresses, so that the 
   # effective memory map does not change during the switch.
-  lgdt    gdtdesc
+  lgdt    gdtdesc                 #you need to load the GDT at address 'gdtdesc'
   movl    %cr0, %eax
   orl     $CR0_PE_ON, %eax
   movl    %eax, %cr0
@@ -75,11 +75,11 @@ spin:
 # Bootstrap GDT
 .p2align 2                                # force 4 byte alignment
 gdt:
-  SEG_NULL				# null seg
-  SEG(STA_X|STA_R, 0x0, 0xffffffff)	# code seg
-  SEG(STA_W, 0x0, 0xffffffff)	        # data seg
+  SEG_NULL				# null seg  (RYAN: first segment is always NULL)
+  SEG(STA_X|STA_R, 0x0, 0xffffffff)	# code seg  (RYAN: STA_X = segment is executable, STA_R = segment is readable, 0x0 = base address, 0xff..f is limit
+  SEG(STA_W, 0x0, 0xffffffff)	        # data seg (RYAN: STA_W = segment is writable, 0x0 = base address, 0xff..f is limmit 
 
 gdtdesc:
-  .word   0x17                            # sizeof(gdt) - 1
-  .long   gdt                             # address gdt
+  .word   0x17                            # sizeof(gdt) - 1 (RYAN: you need to tell the lgdt CPU instruction how long the GDT is. 0x17 is size, in bytes, of the GDT
+  .long   gdt                             # address gdt (RYAN: then put the actual GDT address here so you know where it is) 
 
