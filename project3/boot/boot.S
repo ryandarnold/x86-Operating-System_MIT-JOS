@@ -46,9 +46,9 @@ seta20.2:
   # identical to their physical addresses, so that the 
   # effective memory map does not change during the switch.
   lgdt    gdtdesc                 #you need to load the GDT at address 'gdtdesc'
-  movl    %cr0, %eax
+  movl    %cr0, %eax              
   orl     $CR0_PE_ON, %eax
-  movl    %eax, %cr0
+  movl    %eax, %cr0              #change Control Register 0 to make the CR0_PE_ON bit on, which puts the CPU into protected mode
   
   # Jump to next instruction, but in 32-bit code segment.
   # Switches processor into 32-bit mode.
