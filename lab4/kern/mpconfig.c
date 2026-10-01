@@ -1,6 +1,6 @@
 // Search for and parse the multiprocessor configuration table
 // See http://developer.intel.com/design/pentium/datashts/24201606.pdf
-
+//RYAN: above link doesn't work
 #include <inc/types.h>
 #include <inc/string.h>
 #include <inc/memlayout.h>

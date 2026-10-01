@@ -18,6 +18,7 @@ enum {
 };
 
 // Per-CPU state
+//RYAN: APIC is a module for multi-processor interrupt management
 struct CpuInfo {
 	uint8_t cpu_id;                 // Local APIC ID; index into cpus[] below
 	volatile unsigned cpu_status;   // The status of the CPU
@@ -26,6 +27,7 @@ struct CpuInfo {
 };
 
 // Initialized in mpconfig.c
+//RYAN: mpconfig stands for MultiProcessor Configuration
 extern struct CpuInfo cpus[NCPU];
 extern int ncpu;                    // Total number of CPUs in the system
 extern struct CpuInfo *bootcpu;     // The boot-strap processor (BSP)
