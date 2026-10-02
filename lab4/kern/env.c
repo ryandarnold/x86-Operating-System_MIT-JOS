@@ -118,7 +118,38 @@ void
 env_init(void)
 {
 	// Set up envs array
-	// LAB 3: Your code here.
+	//NOTE: env_free_list is the head of the linked list!!
+	//NOTE: need to add to linked list to tail of LL, not head like before!
+	
+	bool firstTime = true;
+	for (int i = 0; i < NENV; i++)
+	{
+		envs[i].env_status = ENV_FREE;
+		envs[i].env_id = 0;
+		envs[i].env_link = NULL;
+		
+		//now to insert each envs[i] to the back of the LL
+		if (firstTime == true)
+		{
+			env_free_list = &envs[i];
+			//env_free_list->env_link = envs[i];
+			firstTime = false;
+		}
+		else
+		{
+			struct Env *runner = env_free_list;
+	                while (runner != NULL)
+        	        {
+                	        if (runner->env_link == NULL)
+                       		{
+                               		 runner->env_link = &envs[i];
+                               		 break;
+                       		}
+                        runner = runner->env_link;
+                	}
+
+		}
+	}
 
 	// Per-CPU part of the initialization
 	env_init_percpu();
