@@ -30,6 +30,7 @@ struct Pseudodesc idt_pd = {
 	sizeof(idt) - 1, (uint32_t) idt
 };
 
+void NAME(); //NOTE: not sure if this is correct
 
 static const char *trapname(int trapno)
 {
