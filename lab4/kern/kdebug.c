@@ -150,6 +150,17 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
 
 		// Make sure the STABS and string table memory is valid.
 		// LAB 3: Your code here.
+
+		//NOTE: apparently stabs_end is just the memory location where the symbol table (stab) ends
+		//NOTE: and also stabstr_end is where stabstr ends
+		
+		int stab_val = user_mem_check(curenv, (void *) stabs, stabs - stab_end, PTE_U);
+		int stabstr_val = user_mem_check(curenv, (void *) stabstr, stabstr - stabstr_end, PTE_U);
+		
+		if ( (stab_val < 0 ) || (stabstr_val < 0))
+		{
+			return -1; //error
+		}
 	}
 
 	// String table validity checks
@@ -204,6 +215,23 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
 	//	Look at the STABS documentation and <inc/stab.h> to find
 	//	which one.
 	// Your code here.
+
+	//NOTE: it said 'search within [lline, rline] so that tells me to use the binary search function they included
+	stab_binsearch(stabs, &lline, &rline, N_SLINE, addr);
+
+	
+	//If *region_left > *region_right, then 'addr' is not contained in any matching stab.	
+	if (lline > rline)
+	{
+		return -1; //didn't find the line number stab
+	}
+	else
+	{
+		//lline is just an index, just like normal binary search says 
+		// in "https://sourceware.org/gdb/onlinedocs/stabs.html/Line-Numbers.html#Line-Numbers"
+		// it mentions that n_desc contains the line number and is important when searching for the line number using stab_binsearch
+		info->eip_line = stabs[rline].n_desc; 
+	}
 
 
 	// Search backwards from the line number for the relevant filename
