@@ -22,6 +22,9 @@ sys_cputs(const char *s, size_t len)
 	// Destroy the environment if not.
 
 	// LAB 3: Your code here.
+	
+	//couldn't call this function until wrote user_mem_check() function
+	user_mem_assert(curenv, (void *)s, len, PTE_U); //PTE_U for user read 
 
 	// Print the string supplied by the user.
 	cprintf("%.*s", len, s);
@@ -271,9 +274,26 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
 	// Return any appropriate return value.
 	// LAB 3: Your code here.
 
-	panic("syscall not implemented");
+	//NOTE: a1 - a5 are the first five arguments to this function call
+	
 
 	switch (syscallno) {
+		case SYS_cputs: 
+		      sys_cputs((const char*) a1, a2);
+		      return 0; //assuming return a value of 0 for success     
+		case SYS_cgetc: {
+		      uint32_t val = (uint32_t) sys_cgetc();
+		      return val;
+				}
+		case SYS_getenvid: {
+		      envid_t hehe = sys_getenvid();
+		      return hehe;
+				   }
+		case SYS_env_destroy:
+		      return sys_env_destroy(a1);
+		case NSYSCALLS:
+		      cprintf("NSYSCALLS was called");
+		      return -1;
 	default:
 		return -E_INVAL;
 	}
