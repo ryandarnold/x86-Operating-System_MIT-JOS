@@ -73,6 +73,27 @@ trap_init(void)
 
 	// LAB 3: Your code here.
 
+	SETGATE(idt[T_DIVIDE], true, GD_KT,label__t_divide_NOEC, 0);
+	SETGATE(idt[T_DEBUG], true, GD_KT, label__t_debug_NOEC, 0);
+	SETGATE(idt[T_NMI], false, GD_KT, label__t_nmi_NOEC, 0); //assuming this is false because osdev says its an interrupt
+	SETGATE(idt[T_BRKPT], true, GD_KT, label__t_brkpt_NOEC, 3); //TRUE
+	SETGATE(idt[T_OFLOW], true, GD_KT, label__t_oflow_NOEC, 0);
+	SETGATE(idt[T_BOUND], true, GD_KT, label__t_bound_NOEC, 0);
+	SETGATE(idt[T_ILLOP], true, GD_KT, label__t_illop_NOEC, 0);
+	SETGATE(idt[T_DEVICE], true, GD_KT, label__t_device_NOEC, 0);
+	SETGATE(idt[T_DBLFLT], false, GD_KT, label__t_dblflt, 0);
+	SETGATE(idt[T_TSS], true, GD_KT, label__t_tss, 0);
+	SETGATE(idt[T_SEGNP], true, GD_KT, label__t_segnp, 0);
+	SETGATE(idt[T_STACK], true, GD_KT, label__t_stack, 0);
+	SETGATE(idt[T_GPFLT], true, GD_KT, label__t_gpflt, 0);
+	SETGATE(idt[T_PGFLT], true, GD_KT, label__t_pgflt, 0);
+	SETGATE(idt[T_FPERR], true, GD_KT, label__t_fperr_NOEC, 0);
+	SETGATE(idt[T_ALIGN], true, GD_KT, label__t_align, 0);
+	SETGATE(idt[T_MCHK], false, GD_KT, label__t_mchk_NOEC, 0);
+	SETGATE(idt[T_SIMDERR], true, GD_KT, label__t_simderr_NOEC, 0);
+
+	SETGATE(idt[T_SYSCALL], true, GD_KT, label__t_syscall_NOEC, 3);
+
 	// Per-CPU setup 
 	trap_init_percpu();
 }
@@ -177,6 +198,43 @@ trap_dispatch(struct Trapframe *tf)
 	// Handle processor exceptions.
 	// LAB 3: Your code here.
 
+	if (tf->tf_trapno == 14)
+	{
+		page_fault_handler(tf);
+		return;
+	}
+	else if (tf->tf_trapno == 3)
+	{
+		monitor(tf);
+		return;
+	}
+	else if (tf->tf_trapno == 48)
+	{
+		//user inputs their own syscall value into register %eax
+		//BUT the kernel interprets the SYSCALL function as vector 48, which is different than a syscall user input value
+		uint32_t user_syscall_val = tf->tf_regs.reg_eax;
+		uint32_t edx = tf->tf_regs.reg_edx;
+		uint32_t ecx = tf->tf_regs.reg_ecx;
+		uint32_t ebx = tf->tf_regs.reg_ebx;
+		uint32_t edi = tf->tf_regs.reg_edi;
+		uint32_t esi = tf->tf_regs.reg_esi;
+		int32_t val = syscall(user_syscall_val, edx, ecx, ebx, edi, esi);
+		
+		//now to return the value 'val' to %eax
+		//tf->tf_regs.reg_eax;
+		
+		curenv->env_tf.tf_regs.reg_eax = val;
+		return;
+	}
+
+	//I think above here, the kernel shold expect to properly handle the exception that came in because these are recoverable exceptions
+
+
+	//i think if you get below here, then you delete the current enviornment because there are faults in the user program
+	//that SHOULD cause a non-recoverble exception
+
+	//RYAN: Lab 3 code above here 
+	
 	// Handle spurious interrupts
 	// The hardware sometimes raises these because of noise on the
 	// IRQ line or other reasons. We don't care.
@@ -271,6 +329,13 @@ page_fault_handler(struct Trapframe *tf)
 	// Handle kernel-mode page faults.
 
 	// LAB 3: Your code here.
+
+	//RYAN: the tf->tf_cs is the code segment. a value of 0 means its in kernel mode, and value of 3 means in user mode according to 
+	//Intel docs page 3160 out of 5198
+	if (tf->tf_cs == 3)
+	{
+		panic("page fault happened in kernel mode!! in page_fault_handler() function in kern/trap.c");
+	}
 
 	// We've already handled kernel-mode exceptions, so if we get here,
 	// the page fault happened in user mode.
