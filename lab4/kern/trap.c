@@ -30,7 +30,30 @@ struct Pseudodesc idt_pd = {
 	sizeof(idt) - 1, (uint32_t) idt
 };
 
-void NAME(); //NOTE: not sure if this is correct
+// void NAME(); //NOTE: not sure if this is correct
+
+void label__t_divide_NOEC();
+void label__t_debug_NOEC();
+void label__t_nmi_NOEC();
+void label__t_brkpt_NOEC();
+void label__t_oflow_NOEC();
+void label__t_bound_NOEC();
+void label__t_illop_NOEC();
+void label__t_device_NOEC();
+
+void label__t_dblflt();
+void label__t_tss();
+void label__t_segnp();
+void label__t_stack();
+void label__t_gpflt();
+void label__t_pgflt();
+
+void label__t_fperr_NOEC();
+void label__t_align();
+void label__t_mchk_NOEC();
+void label__t_simderr_NOEC();
+
+void label__t_syscall_NOEC();
 
 static const char *trapname(int trapno)
 {
